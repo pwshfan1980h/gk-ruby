@@ -1,0 +1,114 @@
+<%
+  organization = local_assigns.fetch(:organization, @organization)
+  form_version = local_assigns.fetch(:form_version, @form_version)
+  submission = local_assigns.fetch(:submission, @submission)
+  preview = local_assigns.fetch(:preview, false)
+  form_token = local_assigns.fetch(:form_token, @form_token)
+  accent = organization.accent_color
+  accent_text = readable_text_color(accent)
+%>
+<% content_for :title, form_version.title %>
+<% content_for :head do %>
+  <%= tag.style nonce: content_security_policy_nonce do %>
+    :root { --gk-accent: <%= accent %>; --gk-accent-text: <%= accent_text %>; }
+  <% end %>
+<% end %>
+
+<div class="mx-auto w-full max-w-3xl py-8 sm:py-12">
+  <% if preview %>
+    <div class="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm font-medium text-amber-900" role="status">
+      Draft preview — nothing entered here can be submitted.
+    </div>
+  <% end %>
+
+  <header class="mb-8 border-b border-slate-200 pb-7">
+    <p class="text-sm font-semibold uppercase tracking-widest text-[var(--gk-accent)]"><%= organization.name %></p>
+    <h1 class="mt-3 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl"><%= form_version.title %></h1>
+    <% if form_version.intro.present? %>
+      <div class="mt-4 whitespace-pre-line text-base leading-7 text-slate-600"><%= form_version.intro %></div>
+    <% end %>
+  </header>
+
+  <% if submission.errors.any? %>
+    <div class="mb-7 rounded-xl border border-red-200 bg-red-50 p-5" role="alert" tabindex="-1">
+      <h2 class="font-semibold text-red-950">Please correct <%= pluralize(submission.errors.count, "answer") %></h2>
+      <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-red-800">
+        <% submission.errors.each do |error| %><li><%= error.message %></li><% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: submission, url: preview ? "#" : public_form_path(organization_slug: organization.slug), multipart: true, class: "space-y-7" do %>
+    <% unless preview %><%= hidden_field_tag :form_token, form_token %><% end %>
+    <div class="absolute -left-[10000px] top-auto size-px overflow-hidden" aria-hidden="true">
+      <%= label_tag :website, "Leave this field empty" %>
+      <%= text_field_tag :website, nil, tabindex: -1, autocomplete: "off" %>
+    </div>
+
+    <% form_version.fields.each do |field| %>
+      <% input_id = "answer_#{field.field_key}" %>
+      <% value = submission.answers[field.field_key] %>
+      <% errors = submission.errors[:"answer_#{field.field_key}"] %>
+      <fieldset class="rounded-2xl border bg-white p-5 shadow-sm sm:p-6 <%= errors.any? ? "border-red-400" : "border-slate-200" %>">
+        <% if field.field_type.in?(%w[radio checkbox]) %>
+          <legend class="text-base font-semibold text-slate-950"><%= field.label %><%= " *" if field.required? %></legend>
+        <% else %>
+          <%= label_tag input_id, class: "block text-base font-semibold text-slate-950" do %>
+            <%= field.label %><%= " *" if field.required? %>
+          <% end %>
+        <% end %>
+        <% if field.help_text.present? %><p id="<%= input_id %>_help" class="mt-1 text-sm leading-6 text-slate-600"><%= field.help_text %></p><% end %>
+        <% if errors.any? %><p id="<%= input_id %>_error" class="mt-2 text-sm font-semibold text-red-700"><%= errors.to_sentence %></p><% end %>
+        <% described_by = [field.help_text.present? ? "#{input_id}_help" : nil, errors.any? ? "#{input_id}_error" : nil].compact.join(" ") %>
+
+        <div class="mt-3">
+          <% case field.field_type %>
+          <% when "long_text" %>
+            <%= text_area_tag "submission[answers][#{field.field_key}]", value, id: input_id, rows: 7, required: field.required?, maxlength: field.response_max_length, placeholder: field.placeholder, aria: { describedby: described_by.presence, invalid: errors.any? }, class: "w-full rounded-lg border border-slate-300 px-3 py-2.5 focus:outline-none focus:ring-2" %>
+          <% when "email" %>
+            <%= email_field_tag "submission[answers][#{field.field_key}]", value, id: input_id, required: field.required?, maxlength: 320, autocomplete: "email", placeholder: field.placeholder, aria: { describedby: described_by.presence, invalid: errors.any? }, class: "w-full rounded-lg border border-slate-300 px-3 py-2.5 focus:outline-none focus:ring-2" %>
+          <% when "phone" %>
+            <%= telephone_field_tag "submission[answers][#{field.field_key}]", value, id: input_id, required: field.required?, maxlength: 30, autocomplete: "tel", placeholder: field.placeholder, aria: { describedby: described_by.presence, invalid: errors.any? }, class: "w-full rounded-lg border border-slate-300 px-3 py-2.5 focus:outline-none focus:ring-2" %>
+          <% when "date" %>
+            <%= date_field_tag "submission[answers][#{field.field_key}]", value, id: input_id, required: field.required?, min: "1900-01-01", max: Date.current.iso8601, aria: { describedby: described_by.presence, invalid: errors.any? }, class: "w-full rounded-lg border border-slate-300 px-3 py-2.5 sm:w-auto" %>
+          <% when "select" %>
+            <%= select_tag "submission[answers][#{field.field_key}]", options_for_select([["Choose an option", ""]] + field.options.map { |option| [option, option] }, value), id: input_id, required: field.required?, aria: { describedby: described_by.presence, invalid: errors.any? }, class: "w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5" %>
+          <% when "radio" %>
+            <div class="space-y-3">
+              <% field.options.each_with_index do |option, index| %>
+                <label class="flex items-start gap-3 text-slate-800">
+                  <%= radio_button_tag "submission[answers][#{field.field_key}]", option, value == option, id: "#{input_id}_#{index}", required: field.required?, class: "mt-1 size-4" %>
+                  <span><%= option %></span>
+                </label>
+              <% end %>
+            </div>
+          <% when "checkbox" %>
+            <label class="flex items-start gap-3 text-slate-800">
+              <%= check_box_tag "submission[answers][#{field.field_key}]", "1", ActiveModel::Type::Boolean.new.cast(value), id: input_id, required: field.required?, class: "mt-1 size-5 rounded border-slate-300" %>
+              <span>I agree</span>
+            </label>
+          <% when "simulated_file" %>
+            <div class="rounded-lg border border-dashed border-amber-300 bg-amber-50 p-4">
+              <p class="mb-3 text-sm font-semibold text-amber-950">Demo attachment: the selected file's name, type, and size are recorded, but its contents are not retained.</p>
+              <%= file_field_tag "submission[answers][#{field.field_key}]", id: input_id, required: field.required?, accept: ".pdf,.jpg,.jpeg,.png,.docx,.txt", aria: { describedby: described_by.presence, invalid: errors.any? }, class: "block w-full text-sm text-slate-700 file:mr-4 file:rounded-md file:border-0 file:px-4 file:py-2 file:font-semibold" %>
+            </div>
+          <% else %>
+            <%= text_field_tag "submission[answers][#{field.field_key}]", value, id: input_id, required: field.required?, maxlength: field.response_max_length, placeholder: field.placeholder, aria: { describedby: described_by.presence, invalid: errors.any? }, class: "w-full rounded-lg border border-slate-300 px-3 py-2.5 focus:outline-none focus:ring-2" %>
+          <% end %>
+        </div>
+      </fieldset>
+    <% end %>
+
+    <% if organization.privacy_notice.present? %>
+      <section class="rounded-xl bg-slate-100 p-5 text-sm leading-6 text-slate-700">
+        <h2 class="font-semibold text-slate-950">How your information is used</h2>
+        <p class="mt-1 whitespace-pre-line"><%= organization.privacy_notice %></p>
+        <p class="mt-2">Submissions are scheduled for deletion after <%= organization.retention_days %> days.</p>
+      </section>
+    <% end %>
+
+    <button type="<%= preview ? "button" : "submit" %>" <%= "disabled" if preview %> class="w-full rounded-xl bg-[var(--gk-accent)] px-6 py-3.5 text-base font-semibold text-[var(--gk-accent-text)] shadow-sm disabled:cursor-not-allowed disabled:opacity-60">
+      <%= preview ? "Submission disabled in preview" : "Submit complaint" %>
+    </button>
+  <% end %>
+</div>

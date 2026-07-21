@@ -1,0 +1,23 @@
+<% content_for :title, "Accept administrator invitation" %>
+
+<div class="mx-auto w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+  <p class="text-sm font-semibold uppercase tracking-widest text-blue-700">Administrator invitation</p>
+  <h1 class="mt-2 text-2xl font-semibold tracking-tight text-slate-950">Join <%= @invitation.organization.name %></h1>
+  <p class="mt-2 text-sm text-slate-600">Create your private administrator account for <%= @invitation.email_address %>.</p>
+
+  <%= form_with model: @user, url: invitation_acceptance_path(token: params[:token]), class: "mt-6 space-y-5" do |form| %>
+    <div>
+      <%= form.label :name, class: "block text-sm font-medium text-slate-800" %>
+      <%= form.text_field :name, required: true, autocomplete: "name", class: "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" %>
+    </div>
+    <div>
+      <%= form.label :password, "Password (at least 12 characters)", class: "block text-sm font-medium text-slate-800" %>
+      <%= form.password_field :password, required: true, minlength: 12, autocomplete: "new-password", class: "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" %>
+    </div>
+    <div>
+      <%= form.label :password_confirmation, class: "block text-sm font-medium text-slate-800" %>
+      <%= form.password_field :password_confirmation, required: true, minlength: 12, autocomplete: "new-password", class: "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" %>
+    </div>
+    <%= form.submit "Create administrator account", class: "w-full rounded-lg bg-blue-700 px-4 py-3 font-semibold text-white hover:bg-blue-800" %>
+  <% end %>
+</div>

@@ -1,0 +1,11 @@
+acme_owner:
+  organization: acme
+  user: one
+  role: 0
+  active: true
+
+beta_owner:
+  organization: beta
+  user: two
+  role: 0
+  active: true

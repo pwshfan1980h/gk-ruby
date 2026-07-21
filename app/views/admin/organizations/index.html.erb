@@ -1,0 +1,18 @@
+<% content_for :title, "Your organizations" %>
+
+<div class="mx-auto w-full max-w-5xl">
+  <div class="mb-8">
+    <p class="text-sm font-semibold uppercase tracking-widest text-blue-700">Administration</p>
+    <h1 class="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Your organizations</h1>
+    <p class="mt-2 text-slate-600">Choose the complaint form you want to manage.</p>
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-2">
+    <% @memberships.each do |membership| %>
+      <%= link_to admin_organization_path(membership.organization), class: "rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md" do %>
+        <h2 class="text-lg font-semibold text-slate-950"><%= membership.organization.name %></h2>
+        <p class="mt-1 text-sm text-slate-500"><%= membership.role.humanize %></p>
+      <% end %>
+    <% end %>
+  </div>
+</div>

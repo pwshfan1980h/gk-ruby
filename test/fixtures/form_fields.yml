@@ -1,0 +1,63 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  form_version: one
+  field_key: incident-summary
+  field_type: 1
+  label: What happened?
+  help_text: Include the important details.
+  required: true
+  position: 0
+  max_length: 5000
+  options: []
+
+two:
+  form_version: two
+  field_key: beta-summary
+  field_type: 0
+  label: Summary
+  required: true
+  position: 0
+  max_length: 255
+  options: []
+
+acme_draft_summary:
+  form_version: acme_draft
+  field_key: incident-summary
+  field_type: 1
+  label: What happened?
+  help_text: Include the important details.
+  required: true
+  position: 0
+  max_length: 5000
+  options: []
+
+acme_public_attachment:
+  form_version: one
+  field_key: supporting-document
+  field_type: 8
+  label: Supporting document
+  help_text: This demo records metadata only.
+  required: false
+  position: 1
+  options: []
+
+acme_draft_attachment:
+  form_version: acme_draft
+  field_key: supporting-document
+  field_type: 8
+  label: Supporting document
+  help_text: This demo records metadata only.
+  required: false
+  position: 1
+  options: []
+
+beta_draft_summary:
+  form_version: beta_draft
+  field_key: beta-summary
+  field_type: 0
+  label: Summary
+  required: true
+  position: 0
+  max_length: 255
+  options: []

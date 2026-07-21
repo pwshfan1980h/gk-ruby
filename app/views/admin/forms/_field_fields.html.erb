@@ -1,0 +1,47 @@
+<div class="rounded-xl border border-slate-200 bg-slate-50 p-5" data-form-builder-target="item" data-controller="field-config">
+  <%= form.hidden_field :id if form.object.persisted? %>
+  <%= form.hidden_field :position, data: { form_builder_target: "position" } %>
+  <%= form.hidden_field :_destroy, value: false, data: { form_builder_target: "destroy" } %>
+
+  <div class="mb-4 flex items-center justify-between gap-3">
+    <p class="text-sm font-bold uppercase tracking-wide text-slate-500">Form field</p>
+    <div class="flex gap-2">
+      <button type="button" data-action="form-builder#moveUp" class="rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-700" aria-label="Move field up">↑</button>
+      <button type="button" data-action="form-builder#moveDown" class="rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-700" aria-label="Move field down">↓</button>
+      <button type="button" data-action="form-builder#remove" class="rounded-md border border-red-200 bg-white px-2.5 py-1.5 text-sm font-semibold text-red-700">Remove</button>
+    </div>
+  </div>
+
+  <div class="grid gap-5 md:grid-cols-2">
+    <div>
+      <%= form.label :label, class: "block text-sm font-semibold text-slate-800" %>
+      <%= form.text_field :label, required: true, maxlength: 120, class: "mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2" %>
+    </div>
+    <div>
+      <%= form.label :field_type, "Type", class: "block text-sm font-semibold text-slate-800" %>
+      <%= form.select :field_type, FormField.field_types.keys.map { |type| [type.humanize, type] }, {}, data: { field_config_target: "type", action: "change->field-config#refresh" }, class: "mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2" %>
+    </div>
+    <div>
+      <%= form.label :help_text, class: "block text-sm font-semibold text-slate-800" %>
+      <%= form.text_area :help_text, rows: 2, maxlength: 500, class: "mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2" %>
+    </div>
+    <div>
+      <%= form.label :placeholder, class: "block text-sm font-semibold text-slate-800" %>
+      <%= form.text_field :placeholder, maxlength: 150, class: "mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2" %>
+    </div>
+    <div data-field-config-target="choices">
+      <%= form.label :options_text, "Choices (select and radio only)", class: "block text-sm font-semibold text-slate-800" %>
+      <%= form.text_area :options_text, rows: 3, maxlength: FormField::MAX_OPTIONS * 81, placeholder: "Billing\nService\nOther", data: { field_config_target: "choicesInput" }, class: "mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2" %>
+    </div>
+    <div class="space-y-4">
+      <div data-field-config-target="length">
+        <%= form.label :max_length, "Maximum response length", class: "block text-sm font-semibold text-slate-800" %>
+        <%= form.number_field :max_length, min: 1, max: 5000, data: { field_config_target: "lengthInput" }, class: "mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2" %>
+      </div>
+      <label class="flex items-center gap-3 text-sm font-semibold text-slate-800">
+        <%= form.checkbox :required, class: "size-5 rounded border-slate-300 text-blue-700" %>
+        Required field
+      </label>
+    </div>
+  </div>
+</div>

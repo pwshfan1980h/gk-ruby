@@ -1,0 +1,16 @@
+<% content_for :title, "Reset administrator password" %>
+
+<div class="mx-auto w-full max-w-md py-16">
+  <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+    <h1 class="text-3xl font-semibold tracking-tight text-slate-950">Reset your password</h1>
+    <p class="mt-2 text-sm leading-6 text-slate-600">If an administrator account exists for the address, we will send a private reset link.</p>
+    <%= form_with url: passwords_path, class: "mt-7 space-y-5" do |form| %>
+      <div>
+        <%= form.label :email_address, class: "block text-sm font-semibold text-slate-800" %>
+        <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "admin@example.org", value: params[:email_address], class: "mt-2 block w-full rounded-lg border border-slate-300 px-3 py-2.5" %>
+      </div>
+      <%= form.submit "Email reset instructions", class: "w-full rounded-lg bg-blue-700 px-4 py-3 font-semibold text-white hover:bg-blue-800" %>
+    <% end %>
+    <%= link_to "Return to sign in", new_session_path, class: "mt-5 inline-flex text-sm font-semibold text-blue-700" %>
+  </div>
+</div>

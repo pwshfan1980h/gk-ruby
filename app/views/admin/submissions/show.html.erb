@@ -1,0 +1,51 @@
+<% content_for :title, @submission.reference_number %>
+
+<div class="mx-auto w-full max-w-5xl py-8">
+  <%= link_to "← Submissions", admin_organization_submissions_path(current_organization), class: "text-sm font-semibold text-blue-700" %>
+
+  <div class="mt-4 flex flex-col justify-between gap-5 border-b border-slate-200 pb-6 md:flex-row md:items-end">
+    <div>
+      <p class="font-mono text-sm font-semibold text-slate-500"><%= @submission.reference_number %></p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Complaint submission</h1>
+      <p class="mt-2 text-sm text-slate-600">Received <%= time_tag @submission.submitted_at, @submission.submitted_at.to_fs(:long) %> using form version <%= @submission.form_version.version_number %>.</p>
+    </div>
+    <span class="w-fit rounded-full px-3 py-1.5 text-sm font-bold <%= submission_status_classes(@submission.status) %>"><%= @submission.status.humanize %></span>
+  </div>
+
+  <dl class="mt-8 space-y-4">
+    <% @submission.form_version.fields.each do |field| %>
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <dt class="text-sm font-semibold text-slate-600"><%= field.label %></dt>
+        <dd class="mt-2 break-words leading-7 text-slate-900"><%= display_submission_answer(@submission.answers[field.field_key]) %></dd>
+      </div>
+    <% end %>
+  </dl>
+
+  <section class="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <h2 class="text-lg font-semibold text-slate-950">Workflow status</h2>
+    <%= form_with model: @submission, url: admin_organization_submission_path(current_organization, @submission), method: :patch, class: "mt-4 flex flex-col gap-3 sm:flex-row" do |form| %>
+      <%= form.select :status, Submission.statuses.keys.map { |status| [status.humanize, status] }, {}, class: "rounded-lg border border-slate-300 bg-white px-3 py-2.5" %>
+      <%= form.submit "Update status", class: "rounded-lg bg-blue-700 px-4 py-2.5 font-semibold text-white hover:bg-blue-800" %>
+    <% end %>
+  </section>
+
+  <% if @audit_events.any? %>
+    <section class="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-lg font-semibold text-slate-950">Activity</h2>
+      <ol class="mt-4 space-y-3">
+        <% @audit_events.each do |event| %>
+          <li class="flex flex-col justify-between gap-1 border-b border-slate-100 pb-3 text-sm last:border-0 sm:flex-row">
+            <span class="font-medium text-slate-800"><%= event.action.humanize %><%= " by #{event.user.name}" if event.user %></span>
+            <%= time_tag event.created_at, event.created_at.to_fs(:long), class: "text-slate-500" %>
+          </li>
+        <% end %>
+      </ol>
+    </section>
+  <% end %>
+
+  <section class="mt-8 rounded-2xl border border-red-200 bg-red-50 p-6">
+    <h2 class="font-semibold text-red-950">Permanent deletion</h2>
+    <p class="mt-1 text-sm text-red-800">This submission is scheduled for automatic deletion on <%= @submission.retained_until.to_date.to_fs(:long) %>.</p>
+    <%= button_to "Delete now", admin_organization_submission_path(current_organization, @submission), method: :delete, form: { class: "mt-4", data: { turbo_confirm: "Permanently delete #{@submission.reference_number}? This cannot be undone." } }, class: "rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800" %>
+  </section>
+</div>

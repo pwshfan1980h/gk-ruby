@@ -1,0 +1,117 @@
+<% content_for :title, "Edit complaint form" %>
+
+<div class="mx-auto w-full max-w-6xl" data-controller="form-builder">
+  <div class="flex flex-col justify-between gap-5 border-b border-slate-200 pb-7 lg:flex-row lg:items-end">
+    <div>
+      <%= link_to "← #{current_organization.name}", admin_organization_path(current_organization), class: "text-sm font-semibold text-blue-700 hover:text-blue-900" %>
+      <div class="mt-3 flex flex-wrap items-center gap-3">
+        <h1 class="text-3xl font-semibold tracking-tight text-slate-950">Edit complaint form</h1>
+        <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-amber-800">Draft v<%= @draft.version_number %></span>
+      </div>
+      <p class="mt-2 max-w-2xl text-slate-600">Save freely, preview the result, then publish it in one deliberate step. Saving never changes the public form.</p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <%= link_to "Preview draft", preview_admin_organization_form_path(current_organization), target: "_blank", class: "rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" %>
+      <%= button_to "Publish saved draft", publish_admin_organization_form_path(current_organization), method: :patch, form: { data: { turbo_confirm: "Replace the public form with this saved draft? Existing submissions will keep their original form version." } }, class: "rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800" %>
+    </div>
+  </div>
+
+  <% if @draft.errors.any? %>
+    <div class="mt-6 rounded-xl border border-red-200 bg-red-50 p-5" role="alert" tabindex="-1">
+      <h2 class="font-semibold text-red-900"><%= pluralize(@draft.errors.count, "problem") %> prevented this draft from being saved</h2>
+      <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-red-800">
+        <% @draft.errors.full_messages.each do |message| %><li><%= message %></li><% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: @draft, url: admin_organization_form_path(current_organization), method: :patch, class: "mt-8 space-y-8" do |form| %>
+    <%= form.hidden_field :lock_version %>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
+      <div class="border-b border-slate-100 pb-5">
+        <h2 class="text-xl font-semibold text-slate-950">Identity and appearance</h2>
+        <p class="mt-1 text-sm text-slate-600">The accent is paired automatically with readable text.</p>
+      </div>
+      <%= fields_for :organization, current_organization do |organization_form| %>
+        <div class="mt-6 grid gap-6 md:grid-cols-2">
+          <div>
+            <%= organization_form.label :name, "Organization name", class: "block text-sm font-semibold text-slate-800" %>
+            <%= organization_form.text_field :name, required: true, maxlength: 120, class: "mt-2 w-full rounded-lg border border-slate-300 px-3 py-2.5 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100" %>
+          </div>
+          <div data-controller="theme-color">
+            <%= organization_form.label :accent_color, "Accent color", for: "organization_accent_color", class: "block text-sm font-semibold text-slate-800" %>
+            <div class="mt-2 flex items-center gap-3">
+              <%= organization_form.color_field :accent_color, id: "organization_accent_color_picker", aria: { label: "Accent color picker" }, data: { theme_color_target: "picker", action: "input->theme-color#pickerChanged" }, class: "h-11 w-16 cursor-pointer rounded-lg border border-slate-300 bg-white p-1" %>
+              <%= organization_form.text_field :accent_color, id: "organization_accent_color", maxlength: 7, pattern: "#[0-9A-Fa-f]{6}", data: { theme_color_target: "text", action: "input->theme-color#textChanged" }, class: "w-32 rounded-lg border border-slate-300 px-3 py-2.5 font-mono uppercase" %>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-2" aria-label="Accent color presets">
+              <% { "Blue" => ["#1D4ED8", "bg-blue-700"], "Teal" => ["#047857", "bg-emerald-700"], "Purple" => ["#7E22CE", "bg-purple-700"], "Red" => ["#B91C1C", "bg-red-700"], "Slate" => ["#334155", "bg-slate-700"] }.each do |name, (color, color_class)| %>
+                <button type="button" aria-label="Use <%= name.downcase %> accent" title="<%= name %>" data-action="theme-color#usePreset" data-color="<%= color %>" class="size-8 rounded-full border-2 border-white shadow-sm outline <%= color_class %>"></button>
+              <% end %>
+            </div>
+          </div>
+          <div class="md:col-span-2">
+            <%= organization_form.label :privacy_notice, class: "block text-sm font-semibold text-slate-800" %>
+            <p class="mt-1 text-xs text-slate-500">Explain why information is collected, how it is used, and who can access it.</p>
+            <%= organization_form.text_area :privacy_notice, rows: 4, maxlength: 2000, class: "mt-2 w-full rounded-lg border border-slate-300 px-3 py-2.5" %>
+          </div>
+          <div>
+            <%= organization_form.label :retention_days, "Keep submissions for", class: "block text-sm font-semibold text-slate-800" %>
+            <div class="mt-2 flex items-center gap-2">
+              <%= organization_form.number_field :retention_days, min: 1, max: 365, required: true, class: "w-28 rounded-lg border border-slate-300 px-3 py-2.5" %>
+              <span class="text-sm text-slate-600">days</span>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
+      <div class="border-b border-slate-100 pb-5">
+        <h2 class="text-xl font-semibold text-slate-950">Public copy</h2>
+        <p class="mt-1 text-sm text-slate-600">Keep the purpose and next steps concise.</p>
+      </div>
+      <div class="mt-6 space-y-6">
+        <div>
+          <%= form.label :title, class: "block text-sm font-semibold text-slate-800" %>
+          <%= form.text_field :title, required: true, maxlength: 120, class: "mt-2 w-full rounded-lg border border-slate-300 px-3 py-2.5" %>
+        </div>
+        <div>
+          <%= form.label :intro, "Introduction", class: "block text-sm font-semibold text-slate-800" %>
+          <%= form.text_area :intro, rows: 4, maxlength: 2000, class: "mt-2 w-full rounded-lg border border-slate-300 px-3 py-2.5" %>
+        </div>
+        <div>
+          <%= form.label :confirmation_message, class: "block text-sm font-semibold text-slate-800" %>
+          <%= form.text_area :confirmation_message, rows: 3, maxlength: 1000, class: "mt-2 w-full rounded-lg border border-slate-300 px-3 py-2.5" %>
+        </div>
+      </div>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
+      <div class="flex flex-col justify-between gap-4 border-b border-slate-100 pb-5 sm:flex-row sm:items-end">
+        <div>
+          <h2 class="text-xl font-semibold text-slate-950">Fields</h2>
+          <p class="mt-1 text-sm text-slate-600">Up to 30 focused questions. Choice options go one per line.</p>
+        </div>
+        <button type="button" data-action="form-builder#add" class="rounded-lg border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-800 hover:bg-blue-100">Add field</button>
+      </div>
+
+      <div class="mt-6 space-y-4" data-form-builder-target="list">
+        <%= form.fields_for :fields do |field_form| %>
+          <%= render "field_fields", form: field_form %>
+        <% end %>
+      </div>
+
+      <template data-form-builder-target="template">
+        <%= form.fields_for :fields, FormField.new, child_index: "NEW_RECORD" do |field_form| %>
+          <%= render "field_fields", form: field_form %>
+        <% end %>
+      </template>
+    </section>
+
+    <div class="sticky bottom-4 flex justify-end rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-lg backdrop-blur">
+      <%= form.submit "Save draft", class: "rounded-lg bg-blue-700 px-6 py-3 font-semibold text-white shadow-sm hover:bg-blue-800" %>
+    </div>
+  <% end %>
+</div>

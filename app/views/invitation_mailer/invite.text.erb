@@ -1,0 +1,5 @@
+You were invited to administer <%= @invitation.organization.name %> in gk-ruby.
+
+Accept the invitation: <%= new_invitation_acceptance_url(token: @token) %>
+
+This private link expires in seven days. If you did not expect this invitation, you can ignore this message.

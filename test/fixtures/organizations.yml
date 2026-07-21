@@ -1,0 +1,17 @@
+acme:
+  name: Acme Services
+  slug: acme-services
+  accent_color: "#1D4ED8"
+  privacy_notice: We use your information to review and respond to your complaint.
+  retention_days: 90
+  monthly_submission_limit: 10000
+  active: true
+
+beta:
+  name: Beta Services
+  slug: beta-services
+  accent_color: "#047857"
+  privacy_notice: Beta privacy notice.
+  retention_days: 30
+  monthly_submission_limit: 100
+  active: true

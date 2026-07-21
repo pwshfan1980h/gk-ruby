@@ -1,0 +1,25 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  organization: acme
+  form_version: one
+  reference_number: GK-A1B2C3D4E5F6
+  status: 0
+  answers:
+    incident-summary: A fixture complaint.
+  submitted_at: 2026-07-20 19:49:05
+  retained_until: 2026-10-18 19:49:05
+  submitter_ip_digest: digest-one
+  user_agent: Test browser
+
+two:
+  organization: beta
+  form_version: two
+  reference_number: GK-F6E5D4C3B2A1
+  status: 1
+  answers:
+    beta-summary: A second fixture complaint.
+  submitted_at: 2026-07-20 19:49:05
+  retained_until: 2026-08-19 19:49:05
+  submitter_ip_digest: digest-two
+  user_agent: Test browser

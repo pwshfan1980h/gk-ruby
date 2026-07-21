@@ -1,0 +1,45 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  organization: acme
+  form: one
+  version_number: 1
+  status: 1
+  title: Tell us what happened
+  intro: Your feedback helps us improve.
+  confirmation_message: Thank you. Your complaint has been received.
+  published_at: 2026-07-19 12:00:00
+  lock_version: 0
+
+two:
+  organization: beta
+  form: two
+  version_number: 1
+  status: 1
+  title: Contact Beta
+  intro: Tell Beta what happened.
+  confirmation_message: Thank you.
+  published_at: 2026-07-19 12:00:00
+  lock_version: 0
+
+acme_draft:
+  organization: acme
+  form: one
+  version_number: 2
+  status: 0
+  title: Tell us what happened
+  intro: Your feedback helps us improve.
+  confirmation_message: Thank you. Your complaint has been received.
+  created_by: one
+  lock_version: 0
+
+beta_draft:
+  organization: beta
+  form: two
+  version_number: 2
+  status: 0
+  title: Contact Beta
+  intro: Tell Beta what happened.
+  confirmation_message: Thank you.
+  created_by: two
+  lock_version: 0
