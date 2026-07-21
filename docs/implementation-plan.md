@@ -1,6 +1,6 @@
 # Implementation plan
 
-- Status: Local release candidate; deployment and pilot pending
+- Status: Public source release complete; deployment and pilot pending
 - Last updated: 2026-07-20
 
 This is the durable project plan. Update it when a phase changes state so work can
@@ -23,12 +23,9 @@ resume across sessions without reconstructing decisions from chat history.
    production configuration, readiness checks, durable jobs/cache, and runbooks.
 9. Add Minitest, executable Gherkin specifications, headless browser flows, automated
    Axe accessibility rules, security scans, dependency audits, and CI.
-
-## In progress
-
 10. Publish the reviewed initial commit to the requested public GitHub repository.
 
-## Required before a public pilot
+## Next: required before a public pilot
 
 11. Select a Rails host and transactional email provider; configure secrets and HTTPS.
 12. Demonstrate a provider-specific encrypted backup and isolated restore.
